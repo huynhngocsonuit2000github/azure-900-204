@@ -1,16 +1,16 @@
 # 1. Basic application for VM, .NET, deployment
-- [TODO]: need to create the VM and config with those concepts
+- [WIP]: need to create the VM and config with those concepts
 🐧 Host .NET Web API on Azure VM (Ubuntu Linux)
 ✅ What You'll Do
-1. Create a Linux VM on Azure (Ubuntu 22.04)
+1. Create a Linux VM on Azure (Ubuntu 22.04) [Done]
    - Create VM, and ensure port 22 (SSH) is open so we can connect
-2. Install .NET SDK + runtime
+2. Install .NET SDK + runtime [Done]
    - Connect to VM and install .NET SDK to run and build ASP.NET Core Web API on linux, .NET runtime to allows the server to execute the app
-3. Deploy your app using scp (or Git, or FTP)
+3. Deploy your app using scp (or Git, or FTP) [Done]
    - Develop the app and build, publish the app. Then using SCP or SFTP to copy the publish to the Azure VM server
-4. Use Nginx as a reverse proxy (for HTTP routing)
+4. Use Nginx as a reverse proxy (for HTTP routing) [Done]
    - Basically the dotnet app running at port 5000 (not public). Nginx listens on port 80 and forward external request to the app
-5. Configure firewall (NSG) to allow HTTP (port 80)
+5. Configure firewall (NSG) to allow HTTP (port 80) [Done]
    - By default, Azure blocks HTTP (port 80). we have to open it to allow web traffic to reach the server and then Nginx then to .NET app
    - > API can be accesed via internet
 6. Optionally add DNS + monitoring (optional)
