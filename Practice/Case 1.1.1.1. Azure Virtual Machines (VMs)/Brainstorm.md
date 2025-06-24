@@ -1,7 +1,9 @@
 # 1. Basic application for VM, .NET, deployment
+
 - [WIP]: need to create the VM and config with those concepts
-🐧 Host .NET Web API on Azure VM (Ubuntu Linux)
-✅ What You'll Do
+  🐧 Host .NET Web API on Azure VM (Ubuntu Linux)
+  ✅ What You'll Do
+
 1. Create a Linux VM on Azure (Ubuntu 22.04) [Done]
    - Create VM, and ensure port 22 (SSH) is open so we can connect
 2. Install .NET SDK + runtime [Done]
@@ -20,30 +22,35 @@
    - In VSCode install the extension Remote - SSH
    - Add ssh config: host, hostname, user
    - Then connect
-  
+
 # 2. New enhancement version
-2.1. Use Docker to deploy instead 
+
+2.1. Use Docker to deploy instead
 2.2. Enable HTTPS with Let's Encrypt (free SSL)
 2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error
 2.4. Add CI/CD (GitHub to Azure VM)
 
-
 ## 2.1. Use Docker to deploy instead [Done]
+
 The same way we perform configuration at step 1 just some different
+
 - instead of build the code to Publish -> build code using Docker file to Docker images
 - SCP to copy Publish to VM -> VM install Docker to pull docker images
 - .NET runtime to run app -> use docker to run application and forward port 80 inside container to 80 to host machine
 
 ## 2.2. Enable HTTPS with Let's Encrypt (free SSL) [Done]
+
 Using: Let’s Encrypt + NGINX + Certbot to enable HTTPS
 Steps to do:
+
 - Config DNS name for VM's public IP
 - Port 80 and 443 opened in the Azure NSG (Network Security Group)
 - Install Certbot and Nginx Plugin
+
   - Use Certbot to request certificate and auto-configure Nginx for my VM's custom domain
   - After that use the generated certificate to config for Nginx
 
-- The flow when using 
+- The flow when using
 <!--
 🌐 Browser/User
    |
@@ -65,10 +72,12 @@ Steps to do:
 -->
 
 ## 2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error [Done]
+
 - Monitor with tools like **top, htop, iotop, or Azure Monitor**
 - Write the APIs to increase RAM, CPU, Disk
 
-## 2.4. Add CI/CD (Azure VM Jenkins to Azure VM)
+## 2.4. Add CI/CD (Azure VM Jenkins to Azure VM) [Done]
+
 - Install new VM
 - Install docker
 - Install Jenkins docker instance and reference to the docker.sock
