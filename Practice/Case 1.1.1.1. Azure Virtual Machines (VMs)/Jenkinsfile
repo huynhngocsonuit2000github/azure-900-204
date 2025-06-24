@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = 'huynhngocsonuit2000docker/azure-test'
+        SERVER_IP = 'my-vm-dns.southafricanorth.cloudapp.azure.com'
+        SERVER_USER = 'useradmin'
+    }
+
+    stages {
+        stage('Clone Code') {
+            steps {
+                git url: 'https://github.com/huynhngocsonuit2000github/azure-900-204.git', branch: 'main'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'pwd'
+                sh 'ls -la "./Practice/Case 1.1.1.1. Azure Virtual Machines (VMs)/src"'
+                sh 'cd "./Practice/Case 1.1.1.1. Azure Virtual Machines (VMs)/src" && docker build -t $IMAGE_NAME .'
+            }
+        }
+        
+        stage('Login to Docker Hub & Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME
+                    '''
+                }
+            }
+        }
+
+        stage('SSH to Deploy Server and Run App') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'app-server-login', usernameVariable: 'SSH_USER', passwordVariable: 'SSH_PASS')]) {
+                    sh '''
+                        sshpass -p "$SSH_PASS" ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "
+                            docker pull $IMAGE_NAME &&
+                            docker stop mysimpleapi || true &&
+                            docker rm mysimpleapi || true &&
+                            docker run -d -p 5000:80 --name mysimpleapi $IMAGE_NAME
+                        "
+                    '''
+                }
+            }
+        }
+    }
+}

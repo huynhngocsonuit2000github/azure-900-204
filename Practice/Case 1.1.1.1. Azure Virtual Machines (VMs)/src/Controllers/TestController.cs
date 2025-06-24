@@ -18,7 +18,7 @@ public class TestController : ControllerBase
     {
         _logger.LogWarning("Jenkins Pro Warning - CPU - Request come " + DateTime.Now.ToString());
 
-        return Ok("Hello world!");
+        return Ok("Hello world mấy cưng!");
     }
 
     [HttpGet("cpu")]
@@ -33,6 +33,6 @@ public class TestController : ControllerBase
             ls.Add(a);
         }
 
-        return Ok("Hello world! CPU");
+        return Ok("Hello world! mấy cưng CPU");
     }
 }
