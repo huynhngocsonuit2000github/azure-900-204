@@ -1,6 +1,6 @@
 # 1. Basic application for VM, .NET, deployment
 
-- [WIP]: need to create the VM and config with those concepts
+- need to create the VM and config with those concepts
   🐧 Host .NET Web API on Azure VM (Ubuntu Linux)
   ✅ What You'll Do
 
@@ -25,10 +25,10 @@
 
 # 2. New enhancement version
 
-2.1. Use Docker to deploy instead
-2.2. Enable HTTPS with Let's Encrypt (free SSL)
-2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error
-2.4. Add CI/CD (GitHub to Azure VM)
+- 2.1. Use Docker to deploy instead
+- 2.2. Enable HTTPS with Let's Encrypt (free SSL)
+- 2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error
+- 2.4. Add CI/CD (GitHub to Azure VM)
 
 ## 2.1. Use Docker to deploy instead [Done]
 
