@@ -16,9 +16,7 @@ public class TestController : ControllerBase
 
     public IActionResult Get()
     {
-        Console.WriteLine("CW - Request come " + DateTime.Now.ToString());
-        _logger.LogInformation("@@@Logger Information - Request come " + DateTime.Now.ToString());
-        _logger.LogWarning("@@@Logger Warning - Request come " + DateTime.Now.ToString());
+        _logger.LogWarning("Jenkins Pro Warning - CPU - Request come " + DateTime.Now.ToString());
 
         return Ok("Hello world!");
     }
@@ -26,15 +24,14 @@ public class TestController : ControllerBase
     [HttpGet("cpu")]
     public IActionResult GetCPU()
     {
-        var m = DateTime.Now.ToString();
-        Console.WriteLine("CW - cpu come " + m);
+        _logger.LogWarning("Jenkins Pro Warning - CPU - Request come " + DateTime.Now.ToString());
+
         var ls = new List<long>();
         for (int i = 0; i < 1000; i++)
         {
             var a = i * i * i;
             ls.Add(a);
         }
-        Console.WriteLine("CW - cpu end " + m);
 
         return Ok("Hello world! CPU");
     }

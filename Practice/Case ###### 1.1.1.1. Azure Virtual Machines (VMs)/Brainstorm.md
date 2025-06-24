@@ -13,9 +13,13 @@
 5. Configure firewall (NSG) to allow HTTP (port 80) [Done]
    - By default, Azure blocks HTTP (port 80). we have to open it to allow web traffic to reach the server and then Nginx then to .NET app
    - > API can be accesed via internet
-6. Optionally add DNS + monitoring (optional)
+6. Optionally add DNS + monitoring (optional) [Done]
    - Config the DNS for VM, in that case we can access the VM via domain-like address instead of IP
    - We can also track CPU usage, Memory, Disk, error
+7. Connect Local host VS Code to VM [Done]
+   - In VSCode install the extension Remote - SSH
+   - Add ssh config: host, hostname, user
+   - Then connect
   
 # 2. New enhancement version
 2.1. Use Docker to deploy instead 
@@ -24,13 +28,13 @@
 2.4. Add CI/CD (GitHub to Azure VM)
 
 
-## 2.1. Use Docker to deploy instead
+## 2.1. Use Docker to deploy instead [Done]
 The same way we perform configuration at step 1 just some different
 - instead of build the code to Publish -> build code using Docker file to Docker images
 - SCP to copy Publish to VM -> VM install Docker to pull docker images
 - .NET runtime to run app -> use docker to run application and forward port 80 inside container to 80 to host machine
 
-## 2.2. Enable HTTPS with Let's Encrypt (free SSL)
+## 2.2. Enable HTTPS with Let's Encrypt (free SSL) [Done]
 Using: Let’s Encrypt + NGINX + Certbot to enable HTTPS
 Steps to do:
 - Config DNS name for VM's public IP
@@ -60,8 +64,11 @@ Steps to do:
 
 -->
 
-## 2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error
+## 2.3. How to reproduce the CPU usage HIGH, Memory HIGH, Disk HIGH, error [Done]
 - Monitor with tools like **top, htop, iotop, or Azure Monitor**
 - Write the APIs to increase RAM, CPU, Disk
 
-## 2.4. Add CI/CD (GitHub to Azure VM)
+## 2.4. Add CI/CD (Azure VM Jenkins to Azure VM)
+- Install new VM
+- Install docker
+- Install Jenkins docker instance and reference to the docker.sock
