@@ -24,9 +24,9 @@ Client (Internet)
 4. Create Health Probe
    - Load Balancer uses it to check check whether forwad the request to healthy VM or not
 5. Add Load Balancing Rule
-   - Route the incoming request and outcoming response 
+   - Route the incoming request and outcoming response
 6. Test It
-<!-- 
+<!--
        C:\Users\hnson>curl http://135.237.7.95/
        <h1>Hello Nginx from VM2</h1>
 
@@ -40,12 +40,20 @@ Client (Internet)
        hello nginx from VM 1
 
        C:\Users\hnson>curl http://135.237.7.95/
-       <h1>Hello Nginx from VM2</h1> 
+       <h1>Hello Nginx from VM2</h1>
 -->
 
 # 2. Enhance
 
-- 2.1. Add SSL (HTTPS)
-- 2.2. Test with multiple VMs
-- 2.3. Switch to Internal Load Balancer
-- 2.4. Add autoscaling for VM pool
+- 2.1. Add DNS and SSL (HTTPS)
+- 2.2. Switch to Internal Load Balancer
+- 2.3. Add autoscaling for VM pool
+
+## 2.1. Add DNS and SSL (HTTPS)
+
+- Chose the correct **Public IP Address** that associate with the Load Balancer
+- Config for this IP, add the DNS
+- Basically, Load Balancer works at the Layer 4, so it does not support SSL termination. But we can work around by
+  - Install SSL in all of the VMs, and expose the port to 443
+  - Config LB rule to forward port 443
+    -> But this way is not recommended
