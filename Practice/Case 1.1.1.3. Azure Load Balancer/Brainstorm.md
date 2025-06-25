@@ -1,6 +1,6 @@
 # 1. Basic application
 
-- [WIP]: Expose your Web API via a Public IP + Load Balancer, with the ability to scale to more VMs.
+- Expose your Web API via a Public IP + Load Balancer, with the ability to scale to more VMs.
 
 Architecture
 
@@ -46,8 +46,6 @@ Client (Internet)
 # 2. Enhance
 
 - 2.1. Add DNS and SSL (HTTPS)
-- 2.2. Switch to Internal Load Balancer
-- 2.3. Add autoscaling for VM pool
 
 ## 2.1. Add DNS and SSL (HTTPS)
 
