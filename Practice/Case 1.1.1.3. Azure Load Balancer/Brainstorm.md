@@ -16,12 +16,32 @@ Client (Internet)
 
  -->
 
-1. Create simple VM, running Nginx Webapp
-2. Create Public Load Balancer
-3. Create Backend Pool
+1. Create simple 2 VMs, running Nginx Webapp [Done]
+2. Create Public Load Balancer instance [Done]
+   - The same region VM placed
+3. Create Backend Pool [Done]
+   - To associate with the VNet and Region
 4. Create Health Probe
+   - Load Balancer uses it to check check whether forwad the request to healthy VM or not
 5. Add Load Balancing Rule
+   - Route the incoming request and outcoming response 
 6. Test It
+<!-- 
+       C:\Users\hnson>curl http://135.237.7.95/
+       <h1>Hello Nginx from VM2</h1>
+
+       C:\Users\hnson>curl http://135.237.7.95/
+       hello nginx from VM 1
+
+       C:\Users\hnson>curl http://135.237.7.95/
+       <h1>Hello Nginx from VM2</h1>
+
+       C:\Users\hnson>curl http://135.237.7.95/
+       hello nginx from VM 1
+
+       C:\Users\hnson>curl http://135.237.7.95/
+       <h1>Hello Nginx from VM2</h1> 
+-->
 
 # 2. Enhance
 
