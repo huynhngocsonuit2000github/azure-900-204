@@ -11,4 +11,17 @@
 # 2. Enhances
 
 - Host a static website
-- Do a audit feature
+- Implement audit feature
+
+## 2.1. Host a static website
+- We will host a static website with only files: index.html, style.css, script.js
+- Step to do:
+  - Enable **Static website** inside the Storage Account -> It will create the **Primary Endpoint** after saving
+  - Then there is a container **$web** created
+  - Go to the container and upload the **index.html, style.css, script.js** file
+
+## 2.2. Implement audit feature
+- Create container called auditlogs
+- Create the .Net application and use AppendBlockAsync() method to append the log data into existing Container
+  - dotnet add package Azure.Storage.Blobs
+  - dotnet add package Azure.Storage.Blobs.Specialized
