@@ -1,6 +1,6 @@
 # 1. Basic application
 
-- [WIP]: using Azure Blob Storage in an ASP.NET Core Web API application to upload, download, list, and delete files.
+- using Azure Blob Storage in an ASP.NET Core Web API application to upload, download, list, and delete files.
 
 1. Create Azure Storage Account
    - Create Storage Account
