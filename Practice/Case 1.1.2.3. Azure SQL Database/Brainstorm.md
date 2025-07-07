@@ -1,3 +1,9 @@
 # 1. Basic application
 
-- Create a .NET 8 HTTP-triggered Azure Function, test locally, and deploy to Azure. Tech: .NET 8, Azure CLI, Azure Functions Core Tools, RunFromPackage
+- Create a simple .Net application and connect to the Azure SQL Database
+
+1. Create the **Azure SQL Server**
+   - The server like a container to group the SQL Database
+2. Create the **Azure SQL Database**
+   - Create the database inside the SQL Server
+3. Create simple .Net app and connect to the Azure SQL Server
