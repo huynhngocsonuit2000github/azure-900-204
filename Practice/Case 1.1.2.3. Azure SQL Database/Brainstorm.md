@@ -7,3 +7,6 @@
 2. Create the **Azure SQL Database**
    - Create the database inside the SQL Server
 3. Create simple .Net app and connect to the Azure SQL Server
+
+## 2. Enhancement
+- Create the simple web application integrating with Azure SQL Managed Instances
