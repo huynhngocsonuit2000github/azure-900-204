@@ -3,10 +3,11 @@
 - Create the simple AKS on the Cloud and deploy the simple .Net application and simple FE application on that
   
 1. Create .Net web api with some endpoint
-    - Todo Web api app [Done]
-    - Connect to Azure SQL server [Memory]
+    - Todo Web api app, containerize to container [Done]
+    - Run the nginx container to forward request from internet to this .Net container [Done]
+    - Connect to Azure SQL server [WIP]
 2. Create FE app and integrate with this api
-   - Simple Angular application [WIP]
+   - Simple Angular application
    - Integrate with those API
    - Apply simple **LazyLoad**
 3. Deploy to docker and docker-compose
