@@ -15,6 +15,9 @@
      - <!-- /production/web/ -->
      - <!-- /development/web/ -->
 4. Deploy to k8s in local cluster
+   - install minikube on this VM [Done]
+   - Write the hello world Pod on the minikube, and forward request to sub DNS [Done]
+      <!-- http://my-jenkins-mv.westus.cloudapp.azure.com/mini/test -->
    - Write the yaml file to deploy those application
    - Expose to local browser
 5. Deploy to AKS
