@@ -28,7 +28,8 @@
       <!-- az aks get-credentials --resource-group ask-rg --name aks-cluster --overwrite-existing -->
    - Deploy the simple Nginx application on that cluster [Done]
       <!-- http://40.65.61.199:30036/ -->
-   - Deploy the application and export to IP [WIP]
+   - Deploy the application and export to IP [Done]
+      <!-- http://52.234.0.105.nip.io/web/ -->
 6. Create CI/CD to deploy those simple application
    - Create simple VM to run the Jenkins Agent
    - Create simple job to automate running deploy to AKS
