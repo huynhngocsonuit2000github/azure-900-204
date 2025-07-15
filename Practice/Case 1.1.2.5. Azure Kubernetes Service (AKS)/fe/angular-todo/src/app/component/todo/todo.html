@@ -1,0 +1,51 @@
+<div class="todo-container">
+    <!-- Left Panel -->
+    <div class="todo-form-card">
+        <h2>{{ editingTodoId ? '✏️ Update Todo' : '➕ Create Todo' }}</h2>
+        <form (ngSubmit)="saveTodo()" #todoForm="ngForm" class="form">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" [(ngModel)]="newTodo.title" placeholder="e.g. Design a new feature"
+                    required />
+            </div>
+
+            <div class="form-group checkbox">
+                <input type="checkbox" id="isCompleted" name="isCompleted" [(ngModel)]="newTodo.isCompleted" />
+                <label for="isCompleted">Mark as Completed</label>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="btn primary">
+                    {{ editingTodoId ? '💾 Update' : '✅ Create' }}
+                </button>
+                <button *ngIf="editingTodoId" type="button" class="btn outline" (click)="resetForm()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="todo-list-card">
+        <h2>📋 Tasks List</h2>
+        <ul>
+            <li *ngFor="let todo of todos" [class.completed]="todo.isCompleted" (click)="editTodo(todo)">
+                <div class="info">
+                    <input type="checkbox" [checked]="todo.isCompleted" disabled />
+                    <span>{{ todo.title }}</span>
+                </div>
+                <div class="actions">
+                    <button class="action-btn complete" (click)="toggleComplete(todo); $event.stopPropagation()"
+                        title="Toggle Complete">
+                        {{ todo.isCompleted ? '↩️' : '✅' }}
+                    </button>
+
+                    <button class="action-btn delete" (click)="deleteTodo(todo.id); $event.stopPropagation()"
+                        title="Delete">
+                        🗑️
+                    </button>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
