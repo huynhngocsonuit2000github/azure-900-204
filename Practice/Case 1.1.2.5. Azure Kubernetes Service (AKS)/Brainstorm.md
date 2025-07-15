@@ -31,9 +31,10 @@
    - Deploy the application and export to IP [Done]
       <!-- http://52.234.0.105.nip.io/web/ -->
 6. Create CI/CD to deploy those simple application
-   - Create simple VM to run the Jenkins Agent
-   - Create simple job to automate running deploy to AKS
-   - Connect AKS config to this VM, to be able to use kubelet
+   - Install Jenkins Agent [Done]
+   - Bind with VM docker, Install Kubectl CLI [Done]
+   - Connect AKS config to this VM, to be able to use kubelet [Done]
+   - Build the simple Job to deploy the todo application [Done]
 
 ## 2. Enhancement
 
