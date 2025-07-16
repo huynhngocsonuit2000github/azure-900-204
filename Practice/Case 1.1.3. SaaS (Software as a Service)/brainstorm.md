@@ -1,6 +1,6 @@
 ============================================================================================================
 
-# 1. Authentication & Identity (Azure AD B2C)
+# 1. Authentication & Identity (Azure AD B2C) multi-tenancy
 
 1. Create an Azure AD B2C Tenant
 
