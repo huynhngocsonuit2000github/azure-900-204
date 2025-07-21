@@ -115,3 +115,5 @@
 4. Admins debug issues using tenant-based telemetry and logs in App Insights
 
 ============================================================================================================
+
+# Case 1: user sign in with Microsoft Entra External ID

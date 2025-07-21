@@ -1,0 +1,11 @@
+<div class="container">
+    <h2>Your Profile</h2>
+    <div class="card" *ngIf="user; else loading">
+        <div class="info">👤 <strong>Name:</strong> {{ user.name }}</div>
+        <div class="info">📧 <strong>Email:</strong> {{ user.email }}</div>
+        <button class="logout" (click)="logout()">🚪 Logout</button>
+    </div>
+    <ng-template #loading>
+        <p>Loading user info...</p>
+    </ng-template>
+</div>
