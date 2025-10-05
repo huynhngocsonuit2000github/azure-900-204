@@ -1,0 +1,2 @@
+- VM: Remove
+- App Service: Deploy from Azure Portal and CLI
