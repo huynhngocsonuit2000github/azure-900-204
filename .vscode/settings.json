@@ -6,6 +6,7 @@
     "azureFunctions.projectSubpath": "Practice/temp case",
     "azureFunctions.preDeployTask": "publish (functions)",
     "cSpell.words": [
+        "Entra",
         "Runbook"
     ]
 }
