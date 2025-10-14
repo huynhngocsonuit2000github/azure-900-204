@@ -7,6 +7,7 @@
     "azureFunctions.preDeployTask": "publish (functions)",
     "cSpell.words": [
         "Entra",
-        "Runbook"
+        "Runbook",
+        "VMSS"
     ]
 }

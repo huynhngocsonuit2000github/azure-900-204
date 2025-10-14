@@ -1,0 +1,8 @@
+#cloud-config
+package_update: true
+packages:
+  - nginx
+runcmd:
+  - echo "<h1>Welcome from $(hostname)</h1><p>Reboot time: $(date)</p>" > /var/www/html/index.nginx-debian.html
+  - systemctl enable nginx
+  - systemctl restart nginx
