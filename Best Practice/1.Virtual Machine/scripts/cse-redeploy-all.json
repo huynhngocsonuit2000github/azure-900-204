@@ -1,0 +1,20 @@
+{
+  "commandToExecute": "bash -lc 'set -euo pipefail; \
+    sudo apt-get update -y; \
+    sudo apt-get install -y git unzip ca-certificates >/dev/null; \
+    sudo update-ca-certificates || true; \
+    echo \"[GIT] Clone https://github.com/huynhngocsonuit2000github/az-packages.git @ az-vmss-dotnet-v3\"; \
+    sudo rm -rf /opt/az-packages; \
+    sudo git clone --depth 1 --branch az-vmss-dotnet-v3 --single-branch https://github.com/huynhngocsonuit2000github/az-packages.git /opt/az-packages; \
+    PUBZIP=$(find /opt/az-packages -maxdepth 3 -type f -name publish.zip | head -n1); \
+    test -n \"$PUBZIP\" || { echo \"publish.zip not found\" >&2; exit 1; }; \
+    echo \"[APP] Replace /app/mysimpleapi\"; \
+    sudo mkdir -p /app/mysimpleapi; \
+    sudo rm -rf /app/mysimpleapi/*; \
+    sudo unzip -o \"$PUBZIP\" -d /app/mysimpleapi >/dev/null; \
+    echo \"[SYSTEMD] Restart mysimpleapi\"; \
+    sudo systemctl daemon-reload; \
+    sudo systemctl restart mysimpleapi; \
+    echo \"branch: az-vmss-dotnet-v3\" | sudo tee /app/mysimpleapi/RELEASE >/dev/null; \
+    echo \"[DONE] Deployed az-vmss-dotnet-v3\"'"
+}

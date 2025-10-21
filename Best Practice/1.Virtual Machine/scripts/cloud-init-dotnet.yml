@@ -1,0 +1,72 @@
+#cloud-config
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - wget
+  - unzip
+  - git
+
+write_files:
+  - path: /etc/systemd/system/mysimpleapi.service
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=My .NET 8 API
+      After=network-online.target
+      Wants=network-online.target
+
+      [Service]
+      WorkingDirectory=/app/mysimpleapi
+      ExecStart=/usr/local/dotnet/dotnet /app/mysimpleapi/publish/MySimpleApi.dll
+      Restart=always
+      RestartSec=5
+      Environment=ASPNETCORE_ENVIRONMENT=Production
+      Environment=ASPNETCORE_URLS=http://0.0.0.0:80
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  # 0) Ensure TLS roots up to date
+  - update-ca-certificates
+
+  # 1) Install .NET 8 runtime into /usr/local/dotnet and symlink 'dotnet'
+  - mkdir -p /usr/local/dotnet
+  - curl -fsSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+  - bash /tmp/dotnet-install.sh --channel 8.0 --install-dir /usr/local/dotnet
+  - ln -sf /usr/local/dotnet/dotnet /usr/local/bin/dotnet
+
+  # 2) Prepare app dir
+  - mkdir -p /app/mysimpleapi
+
+  # 3) Clone repo and switch to the branch, then locate publish.zip
+  - |
+      set -e
+      REPO_URL="https://github.com/huynhngocsonuit2000github/az-packages.git"
+      BRANCH="az-vmss-dotnet-v1"
+      WORKDIR="/opt/az-packages"
+
+      echo "[GIT] Cloning $REPO_URL (branch: $BRANCH)"
+      rm -rf "$WORKDIR"
+      git clone --depth 1 --branch "$BRANCH" --single-branch "$REPO_URL" "$WORKDIR"
+
+      echo "[GIT] Searching for publish.zip"
+      PUBZIP="$(find "$WORKDIR" -maxdepth 3 -type f -name 'publish.zip' | head -n1)"
+      if [ -z "$PUBZIP" ]; then
+        echo "ERROR: publish.zip not found in $WORKDIR (branch $BRANCH)" | tee /root/app-deploy-error.txt
+        exit 1
+      fi
+      echo "[GIT] Found: $PUBZIP"
+
+      echo "[APP] Extracting publish.zip to /app/mysimpleapi"
+      rm -rf /app/mysimpleapi/*
+      unzip -o "$PUBZIP" -d /app/mysimpleapi
+
+  # 4) Enable + start service
+  - systemctl daemon-reload
+  - systemctl enable mysimpleapi
+  - systemctl restart mysimpleapi
+
+  # 5) Log final status for quick troubleshooting
+  - systemctl status mysimpleapi --no-pager -l > /root/mysimpleapi.status.txt || true
