@@ -223,7 +223,7 @@ PY
           az vmss list-instances -g "$RG" -n "$VMSS" \
             --query "[].{name:name, provisioning:provisioningState, latestModel:latestModelApplied}" -o table
 
-          echo "[VERIFY] Extension summary from model:"
+           echo "[VERIFY] Extension summary from model:"
           az vmss show -g "$RG" -n "$VMSS" \
             --query "virtualMachineProfile.extensionProfile.extensions[].{name:name, type:type, version:typeHandlerVersion}" -o table
         '''
