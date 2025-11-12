@@ -1,0 +1,18 @@
+<h2>Todo</h2>
+
+<form (ngSubmit)="add()" #f="ngForm">
+  <input name="title" [(ngModel)]="title" placeholder="Add todo..." required />
+  <button type="submit">Add</button>
+</form>
+
+<p *ngIf="loading">Loading...</p>
+
+<ul>
+  <li *ngFor="let t of todos()">
+    <label>
+      <input type="checkbox" [checked]="t.isDone" (change)="toggle(t)" />
+      <span [style.textDecoration]="t.isDone ? 'line-through' : 'none'">{{t.title}}</span>
+    </label>
+    <button type="button" (click)="onRemove(t)">✕</button>
+  </li>
+</ul>
