@@ -12,7 +12,10 @@ const string CorsDev = "CorsDev";
 b.Services.AddCors(o =>
 {
     o.AddPolicy(CorsDev, p =>
-        p.WithOrigins("http://localhost:4200")
+        p.WithOrigins(
+            "https://mystorageaccount1199.z7.web.core.windows.net",          // primary
+            "https://mystorageaccount1199-secondary.z7.web.core.windows.net" // (optional) secondary
+        )
          .AllowAnyHeader()
          .AllowAnyMethod());
 });
