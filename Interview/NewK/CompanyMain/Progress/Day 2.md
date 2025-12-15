@@ -144,7 +144,7 @@ public sealed class TodoApiClient
     - To avoid calling to Microservice API many time
     - Share the caching for the public data
     - Cache the data on the client site
-  -> I do not let the UI call many microservice API if within the same page, I create one BFF endpoint per screen (like /bff/home) on that BFF API I will call to multiple microservice APIs parallel and return one DTO. And I also cache the response to avoid that case, which user refresh many times, just set the short timeout about 10 second 
+      -> I do not let the UI call many microservice API if within the same page, I create one BFF endpoint per screen (like /bff/home) on that BFF API I will call to multiple microservice APIs parallel and return one DTO. And I also cache the response to avoid that case, which user refresh many times, just set the short timeout about 10 second
 - How do you debug performance issues in WASM?
   - Case Startup / download is slow:
     - check the total MB \_framework downloaded
@@ -162,7 +162,7 @@ public sealed class TodoApiClient
     - Set timeout for each API call to the downstream service, if it is failed return the error
     - Apply retry, but need to apply careful, because it can lead to duplicated data issue
     - Stop calling to the broken service, if we call to that service many time but still failed
-  -> If we do not handle the transient failure, it can impact to the user experient, faile to load screen, request hang (if we not apply timeout - the thread connection can be not available) lead to the service slow down or crashes. Specially on the Microservice, it can lead to Cascading failure, because if one service at the downstream system faced slow performance, it can impact to all the upstream service, and everything looks down.
+      -> If we do not handle the transient failure, it can impact to the user experient, faile to load screen, request hang (if we not apply timeout - the thread connection can be not available) lead to the service slow down or crashes. Specially on the Microservice, it can lead to Cascading failure, because if one service at the downstream system faced slow performance, it can impact to all the upstream service, and everything looks down.
 - CORS: where and why? (only when browser calls APIs directly)
   - When the UI call the the API with different domain. For example, the Blazor WASM call the microservice APIs
 - Where to store token (avoid unsafe storage if possible)
@@ -173,6 +173,74 @@ public sealed class TodoApiClient
   - If the acess token is invalid, BFF will use that refresh token to call the Azure Entra to get the new access token
   - BFF store the new access token to the server cache and use that to call microservice API to get data and return the UI
 - Token expiry handling (retry once after refresh)
+
+## Auth integration basics, API calling patterns
+
+- OAuth2: Azure Entra Authentication
+- Where we can store tokens:
+  - localStorage: XSS risk
+  - memory: lost on refresh
+  - BFF: HttpOnly secure cookies
+- API calling pattern
+  - Direct WASM -> API: WASM store the token on the UI site in the localStorage(XSS risk), local memory (lost on refresh) and attach the access token into the Authorization token
+  - WASM -> BFF -> API: call /bff/api/\* same origin, BFF read the Auth cookies to get the access token and attach to the api calling to microservice API
+  - Downstream APIs: use on [todo]
+- Basic flow
+  - Login: WASM -> BFF /login -> Entra (IdP) -> cookies
+  - Call API: WASM -> BFF -> API (attach the token)
+  - Refresh: BFF will handle getting new access token by refresh token behind the scenes
+  - WASM
+
+### Question
+
+- Why localStorage is dangerous?
+  - Accessible by Javascript
+  - the token can be stolen
+    -> To fix that, we can use HttpOnly + Secure cookies (BFF). Or we can apply the short-lived token to avoid the token is stolen
+- How to call multiple APIs securely? [todo]
+  - Set time out for each API calling
+  - Apply retry and set the limit number of retry failed
+- How logout works in SPA?
+
+  - SPA logon within BFF
+    - WASP call /logon
+    - BFF: clear cookies, remove access token and refresh token in the cache, redirect to IdP logout
+    - Browser redirect back
+
+- Explain your auth flow end-to-end
+
+  - UI → BFF login cookie → BFF gets token → Gateway validates → Gateway check the DB permission check → microservice
+
+- Why BFF for WASM instead of storing tokens in browser?
+  - Storing Token in the server side can be stolen, lead to XSS risk, refresh is safer, with BFF we can cache the token at the server side, and set authenticated for the UI by using HttpOnly Auth Cookies
+- Cookie session vs access token?
+  - Cookie = session to BFF (browser ↔ BFF).
+  - Access token = proof to call API/Gateway (BFF ↔ Gateway).
+- Where do you perform authorization and why?
+  - Gateway perform the real authorization (single point), in my project, I create the custom authorization, in which I read the user id from the JWT access token, and query in the database to check if that user is valid to access to the microservice API
+- Avoid DB permission lookup every request?
+  - Cache the permission, and auto refresh after 5-10 minutes for example
+- How to pass user identity to microservices safely
+  - Call by Private network
+  - Only gateway can call micro service
+  - After the request pass through gateway, we will adds X-User-Id
+- How handle token expiration/refresh in BFF?
+  - BFF get the access/refresh token cache
+  - Check if the access token is invalid, BFF will use the refresh token to create the new access token and update the cache and the auth cookies
+- Route-based auth in Ocelot?
+  — Put required permission in ocelot.json metadata;
+  - Create the custom middleware reads metadata and checks DB before forwarding.
+- What is correlation?
+  - Is a unique id per request to track the logs end-to-end
+  - Gate way for BFF wil generate the ID, and attach into the header X-Correlation-Id: abc123
+  - Gateway forward it to the service
+  - Every log line will include that id -> easy to debug
+- Trace request across services (more)
+  Goal: “This user clicked button → which service failed?”
+  - Gateway receives request → create correlation id
+  - Gateway forwards to Service A/B/C with same id
+  - Each service logs with that id
+    Always log these fields (structured): CorrelationId, TraceId, UserId, TenantId, RequestPath, StatusCode
 
 # My project
 
@@ -217,3 +285,33 @@ MyApp.sln
 - BFF call microservice API within the token attach to the Authorization: Bearer header
 
 -> When Logout the UI will goes to Logout page -> WASM call to /bff/logout -> BFF will clear the cookies and call to Entra /sigh-out endpoint
+
+### Flow 1: Login (BFF creates cookie session)
+
+- UI → BFF: user clicks “Login”
+- BFF → Entra: redirect to Microsoft login (OIDC)
+- Entra → BFF: callback to /signin-oidc
+- BFF: validates sign-in, creates session cookie (HttpOnly)
+- UI: now authenticated; browser automatically sends cookie on next requests
+
+### - Flow 2: Request Authentication + Authorization (BFF → Ocelot Gateway)
+
+- UI → BFF: calls your BFF API with cookie
+- BFF:
+
+  - reads user session
+  - gets access token for Gateway (server-side)
+  - calls Ocelot Gateway with Authorization: Bearer <token>
+
+- Gateway (AuthN):
+  - validates JWT (issuer, signature, expiry, audience)
+  - extracts userId from claim (usually oid)
+- Gateway (AuthZ):
+
+  - reads required permission from ocelot.json route metadata (ex: SponsorProtocol.Create)
+  - queries DB: does userId have this permission?
+  - if NO → 403
+
+- Gateway → Microservice:
+  - forwards request to internal microservice
+  - adds header like X-User-Id: <oid> so microservice can save CreatedBy
