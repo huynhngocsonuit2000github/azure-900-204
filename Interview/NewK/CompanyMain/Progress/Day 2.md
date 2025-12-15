@@ -136,7 +136,15 @@ public sealed class TodoApiClient
   - Component state for local UI (c# variable on the razor page); scoped state services for shared state (create the Service class and register with DI, and inject that service into the component); persist only what needed (and safely).
 - How do you handle large data lists (feeds) efficiently?
   - Pagination (just render the necessary item on the UI)/infinite scroll, virtualization, caching, avoid re-rendering huge DOM (Using @key to avoid re-render).
-- “How do you avoid calling 5 microservices from the UI for one screen?” (BFF aggregation / gateway / caching) [todo]
+- “How do you avoid calling 5 microservices from the UI for one screen?” (BFF aggregation / gateway / caching)
+  - BFF aggregation:
+    - Combine 5 API request into only one API call, for example /bff/home
+    - BFF can shape data exactly for that screen
+  - Caching
+    - To avoid calling to Microservice API many time
+    - Share the caching for the public data
+    - Cache the data on the client site
+  -> I do not let the UI call many microservice API if within the same page, I create one BFF endpoint per screen (like /bff/home) on that BFF API I will call to multiple microservice APIs parallel and return one DTO. And I also cache the response to avoid that case, which user refresh many times, just set the short timeout about 10 second 
 - How do you debug performance issues in WASM?
   - Case Startup / download is slow:
     - check the total MB \_framework downloaded
@@ -148,11 +156,22 @@ public sealed class TodoApiClient
     - add @key in lists
     - split the large components into smaller ones
   - Too many API calls
-- “How do you handle transient failures?” (timeouts, retries, circuit breaker, idempotency)
-
-- “CORS: where and why?” (only when browser calls APIs directly)
+- How do you handle transient failures?” (timeouts, retries, circuit breaker, idempotency)
+  - Transient failures: this is the temporary problem: network issue, service overload, timeout just face the issue for a short time
+  - With each case we will handle different way
+    - Set timeout for each API call to the downstream service, if it is failed return the error
+    - Apply retry, but need to apply careful, because it can lead to duplicated data issue
+    - Stop calling to the broken service, if we call to that service many time but still failed
+  -> If we do not handle the transient failure, it can impact to the user experient, faile to load screen, request hang (if we not apply timeout - the thread connection can be not available) lead to the service slow down or crashes. Specially on the Microservice, it can lead to Cascading failure, because if one service at the downstream system faced slow performance, it can impact to all the upstream service, and everything looks down.
+- CORS: where and why? (only when browser calls APIs directly)
+  - When the UI call the the API with different domain. For example, the Blazor WASM call the microservice APIs
 - Where to store token (avoid unsafe storage if possible)
+  - The HttpOnly cookie is an authentication session for the BFF, when the broser send the cookies, the BFF will know how the user is
 - Refresh token flow
+  - UI call BFF to get data
+  - BFF extract access/refresh token from auth cookies
+  - If the acess token is invalid, BFF will use that refresh token to call the Azure Entra to get the new access token
+  - BFF store the new access token to the server cache and use that to call microservice API to get data and return the UI
 - Token expiry handling (retry once after refresh)
 
 # My project
