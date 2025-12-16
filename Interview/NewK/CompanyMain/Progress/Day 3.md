@@ -103,3 +103,8 @@
   - Parallel calls, caching, optimize performance for each service, api calling, database query still the best way to improve the performance for entire application
 
 - How do these three concepts work together?
+
+## Sync vs async communication, eventual consistency
+
+- Sync: Http, the service A call to service by using Http and get the response from service B immediately, depend on the API handling. But it can tight couple, cascading failures, latency. Use when we want to get the query data immediately to proceed the next step for function demand, strong consistency needed
+- Async: Message queue / event bus (Kafka, SQS, Service Bus). It will loose couple, scalable. Lead to the case the data inconsistent at the short time (eventual consistency), harder debugging. We use in workflow, integration, high throughput
