@@ -1,3 +1,105 @@
 # Microservices fundamentals
 
 ## Service boundaries, DB-per-service, API composition
+
+- Service boundaries:
+
+  - Each service will have specific data and business logic, we can know as Single Responsibility
+  - Independent development: for example each team handle one service without any blocker
+  - Reduce the impact of the risk of the change the system
+
+- DB-per-service:
+
+  - One service will have one DB, another service can not query on that database
+  - Data sharing happen via APIs or events, not SQL
+  - Avoid the dependency between the services
+  - Reduce the impact risk to each service
+
+- API composition
+  - This is the way to combine the data from multiple service without sharing the database.
+  - For example, BFF (backend for frontend) or API gateway: this is the way to combine multiple services into only one service
+  - It combine the response from multiple API service and return back to UI
+
+### Question
+
+- How do you define service boundaries?
+  - Define the service boundaries by Business logic, not from technical layers
+  - Each service will have its data and logic
+  - So it can change the logic and deploy independently
+- Why is shared database a bad practice?
+  - If we share the database to multiple service, it will create the dependency between service
+  - The schema change in one service can impact to other service
+  - But you know, the core concept of the microservice that is independently, but the server depend to each other can break the flow
+  - If the database failed, all of the service depend on that database will be down
+- How do services share data without DB joins?
+  - Share the data through APIs synchronous read, for example, the Order service call to User service to get the data
+  - Events for asynchronous updates (Message queue), accepting eventual consistency
+- How do you build a UI that needs data from multiple services?
+  - The UI will not call to multiple API service directly to get data
+  - I will use API composition via BFF or API gateway, in that case, with only one /bff endpoint API we can call to multiple APIs to get data, and return to the UI in only one respond
+- What is eventual consistency and why is it acceptable?
+
+  - It means the data is not updated everywhere at the same time for consistently
+  - When the user service update the username, then the order service will wait for short time to be updated, there is a short time to show the different values
+  - It is acceptable
+    - Because the services are independent
+    - It is good for scales the instance of the service
+
+- When would you use BFF instead of API Gateway?
+
+  - When UI needs are specific and complex.
+  - BFF gives flexibility, for example we have multiple platform like Web app, mobile, admin UI, with each platform, it need the different data model
+  - BFF will help the UI to fetch exactly data UI need, and combine multiple API service calling into only one bff endpoint
+  - Using BFF to help to reduce the number of API calling from UI to server
+
+- What are signs that service boundaries are wrong?
+  - Only one request by need to communicate to many service to handle
+  - Multiple service need the same tables -> the schema change from one service can impact to other service
+  - Need to deploy many service together for one change
+    -> Complexity increased without real benefits
+  - If the service depend to each others, need to deploy together, when the service break, it break together -> boundaries are wrong
+- Can service boundaries change over time?
+
+  - Yes, the service boundaries can be changed overtime.
+  - Because the domain, the business grows day by day, so the demand of the system is also increased and the system also need to refactor rely on the demand.
+  - For example slit the service, merge the service, move the responsibilities as expected
+
+- How do you avoid chatty communication between services?
+
+  - Avoid call multiple API to get the data, if possible we can call 1 time to return a full model of data, Use only one API to return everything needed
+  - Use async events (publish message to queue) instead of multiple sync calls. No need to way for other service to get the response, reduce the network overhead on other service
+
+- Is DB-per-service always a separate physical database?
+
+  - One service should have one own DB
+  - The schema change will be safer
+  - Independent with other service, so it is good for scalability
+  - If the database is broken, it will just impact to on the one dependent service, will not impact to many service
+
+- How do you handle reporting across multiple services?
+  - Do not query service database directly for reporting
+  - When the data change from one service, this service will push the event message to queue, and the reporting service will listen to the event, and update the report database. It is good for near-real-time reports, operational dashboards
+  - Data warehosue, we can read the data from the data warehouse to generate the report, and the is another job to collect the data from multiple service databases into database ware house
+- How do you enforce DB-per-service in a team?
+
+  - Separate database credential for each service
+  - No share the database user
+
+- Where should API composition NOT happen?
+  - Show not happen in the composition. Because the Domain service (Order, Payment, User), they should not depend on other service data
+    - Is just used to validate the business rule
+    - Processes command (create order, pay the invoice)
+    - Publish event about the changes
+    - Expose the APIs about its own data only
+  - API composition is just like the middle layer, we often use to combine multiple API calling to respond only one data to UI
+- What are the risks of API composition?
+
+  - Higher latency -> need to apply the timeout and retries
+  - Partial failure -> fallback, stop calling the failed service
+  - We should apply the cache for those BFF endpoint, to avoid the case of use request so many request in a short time
+
+- How do you reduce latency in API composition?
+
+  - Parallel calls, caching, optimize performance for each service, api calling, database query still the best way to improve the performance for entire application
+
+- How do these three concepts work together?
