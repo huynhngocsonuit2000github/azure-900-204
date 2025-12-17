@@ -108,3 +108,56 @@
 
 - Sync: Http, the service A call to service by using Http and get the response from service B immediately, depend on the API handling. But it can tight couple, cascading failures, latency. Use when we want to get the query data immediately to proceed the next step for function demand, strong consistency needed
 - Async: Message queue / event bus (Kafka, SQS, Service Bus). It will loose couple, scalable. Lead to the case the data inconsistent at the short time (eventual consistency), harder debugging. We use in workflow, integration, high throughput
+- Eventual Consistency:
+  - The data will be inconsistent for a short time, will be sync but not immediately
+  - Example: The service order save the order -> emit the message to Message Queue with event OrderCreated -> Payment and Inventory update later, so the data for Order/Payment/Inventory service will be inconsistent for a shot time
+  - Because the system are split into multiple service and database, to achieve immediate consistency data, would slow everything, so the update happen asynchronously
+  - Common pattern: Saga, Outbox, Idempotency
+- Why this is matter [!]
+  - Avoid distributed transactions
+  - Improve availability & scalability
+  - Async processing scales better under load
+  - Temporary failure do not stop the system
+- Microservice mindset
+
+  - Inconsistent state, it is not a bug. Because we would like to improve performance for system by accepting the inconsistent data for a short time
+  - Systems are built to heal themselves over time [todo]
+
+- [Outbox] Order + Event saved in the same database transaction. Then there is a scheduler will scan the pending event, to sent to Message Queue
+
+- [Saga] If the Payment service fails after retries, then the Payment method emit back to the Message Queue with request PaymentFailed, the Order service will makes order Cancelled, release the inventory -> The system will reach a valid end state
+
+- If the message was retries so many time but it still failed, then we will move this message to the Dead Letter queue, then we can inspect that, and the system can still running
+
+- Some pattern
+  - Outbox → no lost messages
+    - Problem: The database save successful but the event publish failed
+    - Save the Order to database and event OrderCreated in the same Database transaction
+    - The background scheduler will scan and publish the pending event
+      -> Ensure: Order and event are always consistent
+  - Idempotency → safe retries:
+    - Problem: There are some case, one message was delivered two times -> Duplicated work
+    - Each message will have the Unique ID
+    - Then the consumer will ignore the message if that Unique ID already handled
+      -> Ensure: retry by the same result, not duplicated work
+  - Saga → controlled rollback:
+    - Problem: There are some functions which have multiple step to be done, need to be done in multiple service
+    - Each step should implement the roll back action (compensation action)
+      -> Ensure: the system ends in a valid state
+  - DLQ → visibility, not downtime
+    - Problem: Message keep failing forever
+    - When retry many time failed -> will move the message to Dead Letter Queue
+    - The system continues running
+    - Engineers:
+      - Inspect the message
+      - Fix data or code
+      - Reply event
+    - Ensure there is not issue happen
+
+```
+Outbox → ensures event exists
+Retry → tries delivery
+Idempotency → prevents duplicates
+Saga → fixes business failures
+DLQ → exposes poison messages
+```
