@@ -168,26 +168,29 @@
 ```
 Outbox → ensures event exists
 Retry → tries delivery
-Idempotency → prevents duplicates
-Saga → fixes business failures
-DLQ → exposes poison messages
+Idempotency → prevents duplicates (event Consumer and Http)
+Saga → fixes business failures (some case need to handle Success/Failed/Time-out/ Reject)
+DLQ → exposes poison messages (implement the compensation action on the Saga pattern)
 ```
 
-<!-- - WHY THIS DESIGN (INTERVIEW GOLD)
+- WHY THIS DESIGN (INTERVIEW GOLD)
+
   - Async = resilience, performance improve, increase user experience
   - TraceId = Business action (User place an order), Correlation Id, it helps to easy to debug the end to end flow
   - Idempotency = correctness, ensure the same message will be handled only one time, there is no duplicated work
   - Eventual consistency = scalability, fast response to the user
 
 - Common mistakes (red flags)
-❌ No correlation ID
-❌ Plain text logs
-❌ No DLQ
-❌ No retry visibility
-❌ Logging only in producer, not consumer 
+  ❌ No correlation ID
+  ❌ Plain text logs
+  ❌ No DLQ
+  ❌ No retry visibility
+  ❌ Logging only in producer, not consumer
 
-https://chatgpt.com/g/g-p-693ac6dedfc48191b9eecfebb854b00c/c/69418fe8-3c28-8324-a580-e9afabbd9061
--->
+## Logger
+
+- In the local development, I use Serilog + central log store (we run the docker to start the log server) this is the central log server. And the I config the Log to point to that server, then every log will be stored on that server
+  -> Locally, I use the Serilog with the central log store (log server), all the service logs and Seq, structure with IDs, Thread Id, Process Id, the message, the time, the message level. So I can trace async workflow end to end (by using the Correlation Id). In the production, the logs go to Azure Monitor or ELK
 
 ### Question
 
@@ -212,5 +215,28 @@ https://chatgpt.com/g/g-p-693ac6dedfc48191b9eecfebb854b00c/c/69418fe8-3c28-8324-
     - The system will check the MessageId (Unique Id) to handle the requestion safety, no duplicated work
     - Idempotency: will check if the message was already proceeded or not, if the message was done, it will log the event like Skipped
 - The log will be stored in the Azure Monitor, then we can query by the traceId = correlationId.
+
   - This will help to debug async workflow like sync
   - Rebuild business flow
+
+- What is the CorrelationId?
+
+  - Unique Id created at the first entry point of request, and pass this Id across all service and async message to link logs and traces for one business action flow. If we filter by Correlation Id, we will see the full business action flow
+
+        - Which service failed?
+
+        - I filter the logs by Correlation Id and look for the Error or missing event to identify the failing service. And I also detect it in the DLQ
+
+        - Did retry happen?
+
+        - I check the retry count, repeated logs with the same MessageId under the same Correlation Id
+
+        - Did idempotency skip?
+        - Look into the log to see any message show that the DuplicateMessageSkipped or not
+
+    -> First I identify the Correlation Id from the entry API. Then I filter the centralized logs by that ID. I look at the error logs or missing step to see which service failed. If the same message with the same MessageId multiple times, I know that retry happen or there is an error with publisher that delivery the same message many times. If the log with the message like DuplicatedMessageSkipped, which mean Idempotency handled duplicates correctly
+
+<!--
+How to dev the big project with multiple services?
+
+https://chatgpt.com/g/g-p-693ac6dedfc48191b9eecfebb854b00c/c/69418fe8-3c28-8324-a580-e9afabbd9061 -->
