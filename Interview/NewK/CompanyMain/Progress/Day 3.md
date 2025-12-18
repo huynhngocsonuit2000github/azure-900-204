@@ -107,6 +107,9 @@
 ## Sync vs async communication, eventual consistency
 
 - Sync: Http, the service A call to service by using Http and get the response from service B immediately, depend on the API handling. But it can tight couple, cascading failures, latency. Use when we want to get the query data immediately to proceed the next step for function demand, strong consistency needed
+  - Use to Query API (GET)
+  - Auth / validation / checking something
+  - Low-latency read paths
 - Async: Message queue / event bus (Kafka, SQS, Service Bus). It will loose couple, scalable. Lead to the case the data inconsistent at the short time (eventual consistency), harder debugging. We use in workflow, integration, high throughput
 - Eventual Consistency:
   - The data will be inconsistent for a short time, will be sync but not immediately
@@ -118,6 +121,14 @@
   - Improve availability & scalability
   - Async processing scales better under load
   - Temporary failure do not stop the system
+  - Benefit:
+    - Finish the API fast, improve the user experience
+    - The consumer can slow or retry safely, do not need to handle immediately
+    - The services can work independently
+  - Trade-offs:
+    - No immediately result
+    - More infra (MQ, DLQ)
+    - Debugging needs tracing
 - Microservice mindset
 
   - Inconsistent state, it is not a bug. Because we would like to improve performance for system by accepting the inconsistent data for a short time
@@ -161,3 +172,45 @@ Idempotency → prevents duplicates
 Saga → fixes business failures
 DLQ → exposes poison messages
 ```
+
+<!-- - WHY THIS DESIGN (INTERVIEW GOLD)
+  - Async = resilience, performance improve, increase user experience
+  - TraceId = Business action (User place an order), Correlation Id, it helps to easy to debug the end to end flow
+  - Idempotency = correctness, ensure the same message will be handled only one time, there is no duplicated work
+  - Eventual consistency = scalability, fast response to the user
+
+- Common mistakes (red flags)
+❌ No correlation ID
+❌ Plain text logs
+❌ No DLQ
+❌ No retry visibility
+❌ Logging only in producer, not consumer 
+
+https://chatgpt.com/g/g-p-693ac6dedfc48191b9eecfebb854b00c/c/69418fe8-3c28-8324-a580-e9afabbd9061
+-->
+
+### Question
+
+- How to debug within multiple services?
+  - Using CorrelationId, one CorrelationId will be corresponding to one business action
+    - We often generate the Correlation Id at the API gateway
+    - And pass this Correlation Id through entire downstream service, and include that inside the Message
+    - Search the log by the correlation id
+  - Message metadata will be included
+    - Correlation Id (Trace Id)
+    - Message Id
+    - Service name
+    - Event name
+    - RetryCount
+  - Why
+    - To detect the duplicate
+    - Track retries
+    - Trace business flow
+  - If the Message was retried for many times, this message will be moved to DLQ, log within the Correlation Id
+  - Idempotency + Logs
+    - We can trace the duplicated message detected
+    - The system will check the MessageId (Unique Id) to handle the requestion safety, no duplicated work
+    - Idempotency: will check if the message was already proceeded or not, if the message was done, it will log the event like Skipped
+- The log will be stored in the Azure Monitor, then we can query by the traceId = correlationId.
+  - This will help to debug async workflow like sync
+  - Rebuild business flow
