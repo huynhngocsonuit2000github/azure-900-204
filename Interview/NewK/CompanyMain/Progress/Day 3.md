@@ -241,21 +241,96 @@ DLQ → exposes poison messages (implement the compensation action on the Saga p
   - There is a share dev environment, there are running all of the service for entire system
   - And the local running service will connect to the share dev service to be able to full flow integration
 
-<<<<<<< HEAD
+- How to dev the big project with multiple services?
+  - Run necessary service on the local side to develop the feature
+  - The local service will connect to the shared service dev environment
+  - There is a development environment, which will run all the service. This support for developer can work to debug
+- What if OrderPlaced is published but Payments never sees it?
+  - There are some reason the Order publish the message but it is not available on the queue, so the Payment service can not see that message to consume, so the business action can not be perform full flow (network, message queue down for a short, MQ crash)
+  - Apply the Outbox and retry
+- What if Payments processes OrderPlaced twice?
+
+  - Use Idempotency pattern in the Payment, in which, when we send the message, we will need to send the unique ID together, and in the consumer service, we will check if the ID already handle or not, if handled we will ignore
+
+- What if Orders receives PaymentAuthorized twice or out of order?
+
+  - To avoid handle message two times, we will implement Idempotency pattern
+
+- What if payment succeeds but Orders update fails?
+
+  - Order will retry to consume the event
+
+- How do you handle cancel when payment is already authorized?
+
+  - Implement the compensation
+
+- Saga vs orchestration here?
+
+  - There is some special business action, we need to implement the saga pattern, in which we will define all the necessary scenario for one business action can have, for example when Order is Place(Inventory will check), Order is Confirmed(Inventory reduce the production), Order is Cancel(Inventory rollback)
+
 ### Another question
-- How do you know a service boundary is wrong?
-  - The service are depend to each other
-  - The update for one function need the change from many service
-  - Many sync calls to multiple service api for one business action
-- Can two services share the same database?
-  - In microservice we should not share the same database for two service
-  - It will be tight couples deployment, schema, and runtime. One new or improvement for one service can impact to other service, and need the deployment together
-- How do you handle queries that need data from multiple services?
-  - We can use API composition
-  - BFF in the case of Web UI call to microservice, UI will use BFF to avoid so many call to microservice api, then it just call to BFF only one time
-  - CQRS read model
-=======
->>>>>>> 93797acee23f7c5c6fa56bc0806cb6f83462f0fa
+
+- Service boundaries: How do you decide boundaries beyond “one DB per service”?
+
+  - One service = one business job: will perform clear business action or functionality
+  - One service owns it data: this allow to change update data, other service will read the data via API or event only
+  - If the feature/functionality change together, they should stay together
+  - If the data must be correct immediately -> same service
+  - If the data can be correct independently -> we will separate into different service, and communicate via MQ
+  - So many sync calls between services -> Wrong boundary
+  - Need distributed transaction
+
+- DB-per-service vs shared DB (real tradeoff): When is shared DB acceptable?
+
+  - In the migration phase
+
+- Sync vs async decision: When do you require synchronous calls between services?
+  - For the synchronous: When the current functionality in the service need immediate data from another service (Ex: order function need the pricing detail, validate some information)
+  - For the asynchronous: we the functionality is the long process need more time to handle, and need to handle across many different service. We can also apply for the business action it can happen many different case or result. In that case it will not block the user experience
+- API composition: BFF vs API Gateway vs “Aggregator service”?
+
+  - Gateway: is use to forward the request to corresponding API service, in the Gateway, we can apply routing, authentication, authorization, rate limit
+  - BFF: is behavior like Gateway, but is often use to support for specific UI client (Ex: Blazor WASM call to only /bff endpoint, BFF will call to 5 API service to get the data and return to the WASM)
+  - For multi-service UI reads, prefer BFF + query model.
+
+- CQRS read model: How do you keep read model fresh and correct?
+
+  - In some case, using BFF can also not resolve the problem call to multiple service API to get the data immediately, if on service failed or slow it can impact to the entire service performance. So we can also apply CQRS pattern, we will create one CQRS service, this is used to prepare the data to respond to the UI, and the read-only database to combine the data from multiple service. So whe the UI want to get the data from multiple service, it just need to call to that CQRS to get the data
+  - Build the consumer that listener to the Message queue only, and implement the idempotency pattern to ensure there is not duplicated work, implement the retry also,
+
+- Exactly-once myth: How do you design for at-least-once delivery?
+
+  - I will apply the Outbox pattern/Inbox pattern/ Idempotency pattern, in which:
+    - Outbox: when commit the business flow to database, we will save the message item in the same transaction, and there is a scheduler to scan an publish this message to the QUEUE, to ensure at least one message go to the queue
+    - Inbox pattern: with each message, we will attach the unique ID
+    - Idempotency pattern: in the consumer will check this unique ID already handled we will ignore
+
+- Ordering guarantees: How do you ensure business ordering of events?
+
+  - All the events of the same Business Action Id will go to the same Message Queue (Service Bus, MQ). That will ensure all service will handle the same business action with the correct order of the step
+  - We will implement the code to handle the workflow to make all the case happen this is still the expected case
+
+- Distributed transactions: Two-phase commit?
+
+  - Actually, We need to narrow case of two-phase commit
+  - Implement the Saga pattern, to prepare all of the necessary case it can happen with the one business action
+  - Implement the compensations
+
+- Consistency & invariants: Where do you make sure business rules are not broken?
+
+  - Avoid Distributed transaction
+  - Avoid writing directly to Payments DB
+  - Rule across service will be handled with event and Sagas pattern using eventual consistency, dot direct database write
+
+- Observability fundamentals: What do you require in production?
+
+  - CorrelationId/traceId propagated end-to-end, structured logs, distributed tracing
+
+- Testing strategy: How do you test a microservices system without brittle end-to-end tests?
+  - Unit test for specific function
+  - Contract tests for APIs/events
+  - component tests with testcontainers
+
 - How to dev the big project with multiple services?
   - Run necessary service on the local side to develop the feature
   - The local service will connect to the shared service dev environment
