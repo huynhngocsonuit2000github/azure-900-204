@@ -235,8 +235,21 @@ DLQ → exposes poison messages (implement the compensation action on the Saga p
         - Look into the log to see any message show that the DuplicateMessageSkipped or not
 
     -> First I identify the Correlation Id from the entry API. Then I filter the centralized logs by that ID. I look at the error logs or missing step to see which service failed. If the same message with the same MessageId multiple times, I know that retry happen or there is an error with publisher that delivery the same message many times. If the log with the message like DuplicatedMessageSkipped, which mean Idempotency handled duplicates correctly
+ 
+- How to dev the big project with multiple services? 
+  - Just run the necessary service we are working on, do not run all of the service
+  - There is a share dev environment, there are running all of the service for entire system
+  - And the local running service will connect to the share dev service to be able to full flow integration
 
-<!--
-How to dev the big project with multiple services?
-
-https://chatgpt.com/g/g-p-693ac6dedfc48191b9eecfebb854b00c/c/69418fe8-3c28-8324-a580-e9afabbd9061 -->
+### Another question
+- How do you know a service boundary is wrong?
+  - The service are depend to each other
+  - The update for one function need the change from many service
+  - Many sync calls to multiple service api for one business action
+- Can two services share the same database?
+  - In microservice we should not share the same database for two service
+  - It will be tight couples deployment, schema, and runtime. One new or improvement for one service can impact to other service, and need the deployment together
+- How do you handle queries that need data from multiple services?
+  - We can use API composition
+  - BFF in the case of Web UI call to microservice, UI will use BFF to avoid so many call to microservice api, then it just call to BFF only one time
+  - CQRS read model
