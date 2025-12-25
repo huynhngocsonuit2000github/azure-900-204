@@ -241,6 +241,7 @@ DLQ → exposes poison messages (implement the compensation action on the Saga p
   - There is a share dev environment, there are running all of the service for entire system
   - And the local running service will connect to the share dev service to be able to full flow integration
 
+<<<<<<< HEAD
 ### Another question
 - How do you know a service boundary is wrong?
   - The service are depend to each other
@@ -253,6 +254,8 @@ DLQ → exposes poison messages (implement the compensation action on the Saga p
   - We can use API composition
   - BFF in the case of Web UI call to microservice, UI will use BFF to avoid so many call to microservice api, then it just call to BFF only one time
   - CQRS read model
+=======
+>>>>>>> 93797acee23f7c5c6fa56bc0806cb6f83462f0fa
 - How to dev the big project with multiple services?
   - Run necessary service on the local side to develop the feature
   - The local service will connect to the shared service dev environment
