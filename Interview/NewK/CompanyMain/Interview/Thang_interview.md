@@ -1,0 +1,39 @@
+- Introduce my self
+- Which project you apply the Microservice?
+- Have you use the message bus? like Kafka or RabbitMQ? Are you familiar with Apache Pulsar?
+- Give the example for the request flow? some thing like the API flow from Client to the API services (regarding the microservice request flow - in your project)
+- What are the different ways to accomplish asynchronous programming on C#?
+- In the term of microservice, how do you accomplish asynchronous?
+- Why did you chose GRPC?
+- in the term of Identity and access management, could you talk about the different methods of authorization, some of the different methods of authentication
+- What kind of architecture API did you implement? Client -> API Gateway -> API Service
+- How the API Gateway work in your project?
+- Did you use the API Gateway for each service in your case?
+- [12:35] Understand about the API flow to get the data or to update the data
+- Did you have any situation where you have got two microservices, they are both updating data or modifying data
+- if the first service is successful, then the second service is failed, how can you handle that situation? Saga, Compensation
+- You say that the second service will cancel the event
+- What do you have a worker service like continually reads? processes of the message? how do you have set up?
+- From your API service, do you have separate service that listen for message
+- Design pattern: some of DP that you prefer, and why you would use them? what are some pattern that you tend to use a lot?
+- In term of SOLID: can you talk about dependency inversion?
+- DI: in dotnet what are the mechanism to inject?
+- How do you register it?
+- Life cycles if DI?
+- Do you have any experience with data warehousing, power BI, ETL in general?
+- How do you handle the the schema of the source database change?
+
+- Do you have any experience with an embedded power bi?
+- FE: do you have experience with Blazor?
+
+- Have you use any controls like Telerik or any other third-party?
+
+- Talk a little bit about integrating with third party API like external API? have you done that you application was resilient on some external resource?
+- Have you use SQS? SNS
+- AWS: Have you use parameter and secret to store, and secret manager?
+- Have you use CloudWatch?
+- EF core is that wha you have kind of used that mostly for your development work? have you use other ORM.
+- The query you are using is running slow, what would you do? how would you troubleshoot that? what would you look into?
+- Have you like the stored procedure or do you tend to just have EF?
+- DB: how do you ensure data integrity in a relational database? How about design? When you design the data table, how do you ensure data integrity?
+-

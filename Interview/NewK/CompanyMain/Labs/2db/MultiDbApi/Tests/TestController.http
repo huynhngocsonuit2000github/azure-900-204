@@ -1,0 +1,23 @@
+@host = http://localhost:5080
+
+### Add item to SQL Server
+POST {{host}}/api/test/sql?name="the task from sql"
+Content-Type: application/json
+
+###
+
+### Get all SQL Server items
+GET {{host}}/api/test/sql
+Accept: application/json
+
+###
+
+### Add item to MySQL
+POST {{host}}/api/test/mysql?name=task from my sql
+Content-Type: application/json
+
+###
+
+### Get all MySQL items
+GET {{host}}/api/test/mysql
+Accept: application/json

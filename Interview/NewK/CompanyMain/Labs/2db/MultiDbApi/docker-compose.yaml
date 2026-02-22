@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # api:
+  #   build: .
+  #   ports:
+  #     - "5000:8080"
+  #   depends_on:
+  #     - sqlserver
+  #     - mysql
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "Admin@123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: MyDb
+    ports:
+      - "3306:3306"
